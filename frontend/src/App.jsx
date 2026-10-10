@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, NavLink, Link } from 'react-router-dom';
 import UploadPage from './pages/UploadPage';
 import DashboardPage from './pages/DashboardPage';
 import HistoryPage from './pages/HistoryPage';
@@ -9,10 +9,10 @@ function App() {
     <Router>
       <div className="app-layout">
         <nav className="navbar">
-            <div className="nav-brand">Axiom Parser</div>
+            <Link to="/" className="nav-brand">Axiom Parser</Link>
             <div className="nav-links">
-                <Link to="/">Upload</Link>
-                <Link to="/history">History</Link>
+                <NavLink to="/" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`} end>Upload</NavLink>
+                <NavLink to="/history" className={({ isActive }) => `nav-link ${isActive ? 'active' : ''}`}>History</NavLink>
             </div>
         </nav>
         

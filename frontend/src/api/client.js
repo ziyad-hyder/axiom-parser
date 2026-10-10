@@ -1,32 +1,102 @@
-const API_BASE = (import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') + '/api';
+const getApiBase = () => {
+    let baseUrl = import.meta.env.VITE_API_BASE_URL;
+
+    if (!baseUrl && import.meta.env.PROD) {
+        throw new Error("VITE_API_BASE_URL is not configured");
+    }
+
+    if (!baseUrl) {
+        baseUrl = 'http://localhost:8000';
+    }
+
+    // Strip trailing slash if present
+    if (baseUrl.endsWith('/')) {
+        baseUrl = baseUrl.slice(0, -1);
+    }
+    
+    return baseUrl + '/api';
+};
+
+export const API_BASE = getApiBase();
+
+console.info(`[Startup] API Base URL configured to: ${API_BASE}`);
+
+const handleFetchError = async (error, response) => {
+    // Network errors or CORS
+    if (error && !response) {
+        if (error.name === 'AbortError') {
+            throw new Error(`Request timed out after waiting too long.`);
+        }
+        throw new Error(`Cannot reach the server at ${API_BASE}. Check that the backend is running and CORS allows this origin.`);
+    }
+
+    // HTTP errors
+    if (!response.ok) {
+        let detail = response.statusText;
+        try {
+            const data = await response.json();
+            if (data.detail) {
+                detail = typeof data.detail === 'string' ? data.detail : JSON.stringify(data.detail);
+            }
+        } catch (e) {
+            // Ignore JSON parse error if response is not JSON
+        }
+        throw new Error(`Server returned ${response.status}: ${detail}`);
+    }
+};
 
 export const analyzeDocument = async (file) => {
     const formData = new FormData();
     formData.append('file', file);
 
-    const response = await fetch(`${API_BASE}/analyze`, {
-        method: 'POST',
-        body: formData,
-    });
-    
-    if (!response.ok) {
-        throw new Error('Analysis failed');
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 120000); // 120 seconds
+
+    try {
+        const response = await fetch(`${API_BASE}/analyze`, {
+            method: 'POST',
+            body: formData,
+            signal: controller.signal
+        });
+        
+        await handleFetchError(null, response);
+        
+        clearTimeout(timeoutId);
+        return await response.json();
+    } catch (error) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            await handleFetchError(error, null);
+        }
+        if (!error.message.includes('Cannot reach') && !error.message.includes('Server returned') && !error.message.includes('timed out')) {
+            await handleFetchError(error, null);
+        }
+        throw error;
     }
-    return response.json();
 };
 
 export const getDocuments = async () => {
-    const response = await fetch(`${API_BASE}/documents`);
-    if (!response.ok) {
-        throw new Error('Failed to fetch documents');
+    try {
+        const response = await fetch(`${API_BASE}/documents`);
+        await handleFetchError(null, response);
+        return await response.json();
+    } catch (error) {
+        if (!error.message.includes('Cannot reach') && !error.message.includes('Server returned')) {
+            await handleFetchError(error, null);
+        }
+        throw error;
     }
-    return response.json();
 };
 
 export const getDocumentById = async (id) => {
-    const response = await fetch(`${API_BASE}/documents/${id}`);
-    if (!response.ok) {
-        throw new Error('Failed to fetch document');
+    try {
+        const response = await fetch(`${API_BASE}/documents/${id}`);
+        await handleFetchError(null, response);
+        return await response.json();
+    } catch (error) {
+        if (!error.message.includes('Cannot reach') && !error.message.includes('Server returned')) {
+            await handleFetchError(error, null);
+        }
+        throw error;
     }
-    return response.json();
 };
