@@ -1,16 +1,33 @@
-# React + Vite
+# Axiom Parser
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Axiom Parser is a tool for analyzing legal/business documents (PDF/DOCX) using Google's Gemini 3.8 Flash to intelligently extract risks, deadlines, obligations, and key clauses. Built for the Centle AI Tricity Hackathon.
 
-Currently, two official plugins are available:
+## Setup Instructions
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### Backend
+1. Navigate to the `backend` directory.
+2. Create a virtual environment: `python3 -m venv venv`
+3. Activate it: `venv\Scripts\activate` (Windows) or `source venv/bin/activate` (Mac/Linux)
+4. Install requirements: `pip install -r requirements.txt`
+5. Copy `.env.example` to `.env` and fill in your credentials for Gemini, Neon Postgres, and Cloudflare R2.
+6. Run the FastAPI development server: `uvicorn main:app --reload`
 
-## React Compiler
+### Frontend
+1. Navigate to the `frontend` directory.
+2. Install dependencies: `npm install`
+3. Run the Vite development server: `npm run dev`
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Building and Deployment
 
-## Expanding the Oxlint configuration
+You can seamlessly build the entire stack into a single-deployable unit using the provided `build.sh` script in the root directory.
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+```bash
+chmod +x build.sh
+./build.sh
+```
+
+The script will compile the React app into `frontend/dist` and set up the Python environment. The FastAPI backend is configured to automatically serve the static React application and handle SPA fallback routing on port 8000.
+
+**For full production deployment instructions on a GCP e2-micro VM, please read `DEPLOYMENT.md`.**
+
+**For core architectural decisions, trade-offs, and design patterns, please read `HANDOFF.md`.**

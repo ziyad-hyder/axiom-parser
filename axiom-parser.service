@@ -1,0 +1,23 @@
+[Unit]
+Description=Axiom Parser FastAPI Application
+After=network.target
+
+[Service]
+User=ubuntu
+Group=ubuntu
+WorkingDirectory=/home/ubuntu/axiom-parser-backend
+Environment="PATH=/home/ubuntu/axiom-parser-backend/venv/bin"
+EnvironmentFile=/home/ubuntu/axiom-parser-backend/.env.production
+
+# Given the e2-micro's 1GB RAM constraint, we explicitly restrict uvicorn to a single worker (the default)
+# Multiple workers would consume 100-200MB each and risk triggering the Linux OOM killer when processing documents.
+ExecStart=/home/ubuntu/axiom-parser-backend/venv/bin/uvicorn main:app --host 0.0.0.0 --port 8000
+
+Restart=always
+RestartSec=5
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=axiom-parser
+
+[Install]
+WantedBy=multi-user.target
