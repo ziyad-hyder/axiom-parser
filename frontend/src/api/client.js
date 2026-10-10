@@ -41,6 +41,11 @@ const handleFetchError = async (error, response) => {
         } catch (e) {
             // Ignore JSON parse error if response is not JSON
         }
+        
+        // Remove em-dashes from detail
+        if (detail) {
+            detail = detail.replace(/—/g, '-');
+        }
         throw new Error(`Server returned ${response.status}: ${detail}`);
     }
 };

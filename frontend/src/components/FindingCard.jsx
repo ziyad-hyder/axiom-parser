@@ -8,6 +8,9 @@ export default function FindingCard({ finding, onClick, isSelected }) {
         }
     };
 
+    // Remove em dashes from summary if any
+    const summary = finding.summary ? finding.summary.replace(/—/g, '-') : '';
+
     return (
         <div 
             className={`finding-card type-${finding.type} ${isSelected ? 'selected' : ''}`}
@@ -25,9 +28,9 @@ export default function FindingCard({ finding, onClick, isSelected }) {
                     </span>
                 )}
             </div>
-            <p className="finding-summary">{finding.summary}</p>
+            <p className="finding-summary">{summary}</p>
             <div className="finding-meta">
-                <span className="location-label">{finding.location_ref}</span>
+                <span className="location-label">Segment {finding.location_ref}</span>
             </div>
         </div>
     );

@@ -66,7 +66,8 @@ export default function UploadPage() {
             navigate(`/dashboard/${result.document.id}`, { state: { result } });
         } catch (error) {
             console.error(error);
-            setErrorMsg(error.message || 'An error occurred during analysis.');
+            const rawMsg = error.message || 'An error occurred during analysis.';
+            setErrorMsg(rawMsg.replace(/—/g, '-'));
             setStatus('error');
         }
     };
@@ -77,7 +78,7 @@ export default function UploadPage() {
         if (!isProcessing && status !== 'error') return null;
         
         return (
-            <div className="progress-stepper">
+            <div className="progress-stepper" aria-live="polite">
                 <div className={`step ${status === 'uploading' ? 'active' : ''} ${['extracting', 'analyzing', 'error'].includes(status) && status !== 'uploading' ? 'completed' : ''}`}>
                     {status === 'uploading' && <div className="spinner"></div>}
                     <span>Uploading document...</span>
@@ -116,7 +117,7 @@ export default function UploadPage() {
                         className="file-input"
                         ref={fileInputRef}
                     />
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--color-text-muted)' }}>
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ color: 'var(--brand-primary)' }}>
                         <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                         <polyline points="17 8 12 3 7 8"></polyline>
                         <line x1="12" y1="3" x2="12" y2="15"></line>
@@ -127,7 +128,7 @@ export default function UploadPage() {
             ) : (
                 <div className="file-preview">
                     <div className="file-info">
-                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--color-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="var(--brand-primary)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                             <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
                             <polyline points="14 2 14 8 20 8"></polyline>
                             <line x1="16" y1="13" x2="8" y2="13"></line>
@@ -137,14 +138,14 @@ export default function UploadPage() {
                         <div>
                             <div className="file-name">{file.name}</div>
                             <div className="file-meta">
-                                {(file.size / 1024 / 1024).toFixed(2)} MB • {file.type || 'Document'}
+                                {(file.size / 1024 / 1024).toFixed(2)} MB - {file.type || 'Document'}
                             </div>
                         </div>
                     </div>
 
                     {!isProcessing && status !== 'error' && (
                         <div className="file-actions">
-                            <button className="btn btn-primary" onClick={handleAnalyze}>
+                            <button className="btn btn-primary" onClick={handleAnalyze} disabled={!file}>
                                 Analyze document
                             </button>
                             <button className="btn btn-secondary" onClick={handleRemoveFile}>
@@ -160,7 +161,10 @@ export default function UploadPage() {
             {errorMsg && (
                 <div className="error-banner">
                     <span>{errorMsg}</span>
-                    <button className="btn btn-ghost" onClick={() => { setErrorMsg(''); setStatus(file ? 'file_selected' : 'idle'); }}>Dismiss</button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button className="btn btn-ghost" onClick={() => handleAnalyze()}>Retry</button>
+                        <button className="btn btn-ghost" onClick={() => { setErrorMsg(''); setStatus(file ? 'file_selected' : 'idle'); }}>Dismiss</button>
+                    </div>
                 </div>
             )}
         </div>

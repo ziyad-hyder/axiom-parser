@@ -51,25 +51,37 @@ export default function DashboardPage() {
                 <div className="summary-title">{document.filename}</div>
                 <div className="stat-chip badge-default">{(document.filename.split('.').pop() || 'doc').toUpperCase()}</div>
                 <div className="stat-chip badge-default">{segments.length} segments</div>
-                <div className="stat-chip risk">{counts.risk} Risks</div>
-                <div className="stat-chip deadline">{counts.deadline} Deadlines</div>
-                <div className="stat-chip obligation">{counts.obligation} Obligations</div>
-                <div className="stat-chip clause">{counts.key_clause} Clauses</div>
+                <div className="stat-chip risk">
+                    Risks
+                    <span className="pill">{counts.risk}</span>
+                </div>
+                <div className="stat-chip deadline">
+                    Deadlines
+                    <span className="pill">{counts.deadline}</span>
+                </div>
+                <div className="stat-chip obligation">
+                    Obligations
+                    <span className="pill">{counts.obligation}</span>
+                </div>
+                <div className="stat-chip clause">
+                    Clauses
+                    <span className="pill">{counts.key_clause}</span>
+                </div>
             </div>
             
             <div className="dashboard-columns">
                 <div className="sidebar">
-                    <div className="tabs">
-                        <button className={`tab ${activeTab === 'risk' ? 'active' : ''}`} onClick={() => setActiveTab('risk')}>
+                    <div className="tabs" role="tablist">
+                        <button role="tab" aria-selected={activeTab === 'risk'} className={`tab ${activeTab === 'risk' ? 'active' : ''}`} onClick={() => setActiveTab('risk')}>
                             Risks <span className="tab-badge">{counts.risk}</span>
                         </button>
-                        <button className={`tab ${activeTab === 'deadline' ? 'active' : ''}`} onClick={() => setActiveTab('deadline')}>
+                        <button role="tab" aria-selected={activeTab === 'deadline'} className={`tab ${activeTab === 'deadline' ? 'active' : ''}`} onClick={() => setActiveTab('deadline')}>
                             Deadlines <span className="tab-badge">{counts.deadline}</span>
                         </button>
-                        <button className={`tab ${activeTab === 'obligation' ? 'active' : ''}`} onClick={() => setActiveTab('obligation')}>
+                        <button role="tab" aria-selected={activeTab === 'obligation'} className={`tab ${activeTab === 'obligation' ? 'active' : ''}`} onClick={() => setActiveTab('obligation')}>
                             Obligations <span className="tab-badge">{counts.obligation}</span>
                         </button>
-                        <button className={`tab ${activeTab === 'key_clause' ? 'active' : ''}`} onClick={() => setActiveTab('key_clause')}>
+                        <button role="tab" aria-selected={activeTab === 'key_clause'} className={`tab ${activeTab === 'key_clause' ? 'active' : ''}`} onClick={() => setActiveTab('key_clause')}>
                             Clauses <span className="tab-badge">{counts.key_clause}</span>
                         </button>
                     </div>
@@ -85,11 +97,6 @@ export default function DashboardPage() {
                         ))}
                         {filteredFindings.length === 0 && (
                             <div className="empty-state">
-                                <svg className="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                                    <circle cx="12" cy="12" r="10"></circle>
-                                    <line x1="12" y1="8" x2="12" y2="12"></line>
-                                    <line x1="12" y1="16" x2="12.01" y2="16"></line>
-                                </svg>
                                 <div>No {activeTab.replace('_', ' ')}s found in this document.</div>
                             </div>
                         )}
